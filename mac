@@ -110,10 +110,6 @@ brew "tmux"
 brew "vim"
 brew "zsh"
 
-# Heroku
-brew "heroku-toolbelt"
-brew "parity"
-
 # GitHub
 brew "hub"
 
@@ -144,19 +140,44 @@ ruby_version="$(find_latest_ruby)"
 append_to_zshrc 'eval "$(rbenv init - --no-rehash)"' 1
 eval "$(rbenv init -)"
 
+yello_enterprise_ruby_version=2.2.4
+
 if ! rbenv versions | grep -Fq "$ruby_version"; then
   RUBY_CONFIGURE_OPTS=--with-openssl-dir=/usr/local/opt/openssl rbenv install -s "$ruby_version"
 fi
 
-rbenv global "$ruby_version"
-rbenv shell "$ruby_version"
+if ! rbenv versions | grep -Fq "$yello_enterprise_ruby_version"; then
+  RUBY_CONFIGURE_OPTS=--with-openssl-dir=/usr/local/opt/openssl rbenv install -s "$yello_enterprise_ruby_version"
+fi
+
+rbenv global "$yello_enterprise_ruby_version"
+rbenv shell "$yello_enterprise_ruby_version"
 gem update --system
 gem_install_or_update 'bundler'
 number_of_cores=$(sysctl -n hw.ncpu)
 bundle config --global jobs $((number_of_cores - 1))
+
+# Install Vagrant Plugin
+if ! vagrant plugin list | grep 'vagrant-vbguest'; then
+  vagrant plugin install vagrant-vbguest
+fi
+
+# Set up Vagrant directory to prepare for Vagrant download
+
+if ! cd $HOME/rc2-vagrant > /dev/null; then
+  mkdir $HOME/rc2-vagrant
+fi
+
+cd $HOME/rc2-vagrant
+
+# Laptop Local Customizations
 
 if [ -f "$HOME/.laptop.local" ]; then
   fancy_echo "Running your customizations from ~/.laptop.local ..."
   # shellcheck disable=SC1090
   . "$HOME/.laptop.local"
 fi
+
+fancy_echo "Installation complete! Download the Vagrant file into ~/rc2-vagrant from the following URL:"
+
+fancy_echo "https://recsolu.beanstalkapp.com/chef-cookbook-ye-vagrant/download/git/Vagrantfile\n\n"
