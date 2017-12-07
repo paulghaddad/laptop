@@ -37,6 +37,13 @@ Review the script (avoid running scripts you haven't read!):
 less mac
 ```
 
+Before executing the script, move the `.laptop.local` file to the home
+directory.
+
+```sh
+mv .laptop.local ~
+```
+
 Execute the downloaded script:
 
 ```sh
